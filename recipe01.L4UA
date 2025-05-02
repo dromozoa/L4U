@@ -1,0 +1,4 @@
+-- vim:filetype=lua:
+
+function main()
+end
