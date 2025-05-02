@@ -4,59 +4,61 @@ local major, minor = assert(_VERSION:match "^Lua (%d+)%.(%d+)$")
 local version = major * 10 + minor
 assert(version >= 54)
 
-local parser = {}
+local class = {}
+local metatable = { __index = class }
+local _1
+local _2
+local _3
+local _4
 
-local function parse(token_type, token_value, line, position)
+function class.new(source)
+  return setmetatable({
+    source = source;
+    line = 1;
+    position = 1;
+  }, metatable)
+end
+
+function class:match(pattern)
+  local i, j, a, b, c, d = self.source:find("^"..pattern, self.position)
+  if i then
+    assert(self.position == i)
+    self.line = self.line + select(2, self.source:sub(self.position, j):gsub("\n", {}))
+    self.position = j + 1
+    _1 = a
+    _2 = b
+    _3 = c
+    _4 = d
+    return true
+  else
+    return false
+  end
 end
 
 -- 効率や速度は考えない
 -- 改行コードはLF限定（行番号を数える際）
-local function lexer(source)
-  local line = 1
-  local position = 1
-  local _1
-  local _2
-  local _3
-  local _4
-
-  local function match(pattern)
-    local i, j, a, b, c, d = source:find("^"..pattern, position)
-    if i then
-      assert(position == i)
-      line = line + select(2, source:sub(position, j):gsub("\n", {}))
-      position = j + 1
-      _1 = a
-      _2 = b
-      _3 = c
-      _4 = d
-      return true
-    else
-      return false
-    end
-  end
-
-  while position <= #source do
+function class:parse()
+  while self.position <= #self.source do
     -- 空白文字を無視する
-    if match "[\f\n\r\t\v ]+" then
-      -- noop
+    if self:match "[\f\n\r\t\v ]+" then
 
-    elseif match "%-%-[^\n\r]*" then
-      -- noop
+    -- コメントを無視する
+    elseif self:match "%-%-[^\n\r]*" then
 
-    elseif match "function" then
-      print(line, position, "function")
+    elseif self:match "function" then
+      print(self.line, self.position, "function")
 
-    elseif match "end" then
-      print(line, position, "end")
+    elseif self:match "end" then
+      print(self.line, self.position, "end")
 
-    elseif match "%(" then
-      print(line, position, "(")
+    elseif self:match "%(" then
+      print(self.line, self.position, "(")
 
-    elseif match "%)" then
-      print(line, position, ")")
+    elseif self:match "%)" then
+      print(self.line, self.position, ")")
 
-    elseif match "([A-Za-z_][0-9A-Za-z_]*)" then
-      print(line, position, "identifier", _1)
+    elseif self:match "([A-Za-z_][0-9A-Za-z_]*)" then
+      print(self.line, self.position, "identifier", _1)
 
     else
       error("lexer error at line "..line)
@@ -64,7 +66,6 @@ local function lexer(source)
   end
 end
 
--- Output
 local source = io.read "*a"
-lexer(source)
+class.new(source):parse()
 -- io.write(source)
