@@ -4,6 +4,8 @@ local major, minor = assert(_VERSION:match "^Lua (%d+)%.(%d+)$")
 local version = major * 10 + minor
 assert(version >= 54)
 
+local parser = {}
+
 local function parse(token_type, token_value, line, position)
 end
 
@@ -58,9 +60,7 @@ local function lexer(source)
 
     else
       error("lexer error at line "..line)
-
     end
-
   end
 end
 
