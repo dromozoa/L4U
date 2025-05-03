@@ -41,64 +41,19 @@ local function lexer(source)
       or _("0[xX]%x+", "integer", tonumber)
       or _("%d+", "integer", tonumber)
 
-      or _"and"
-      or _"break"
-      or _"do"
-      or _"else"
-      or _"elseif"
-      or _"end"
-      or _"false"
-      or _"for"
-      or _"function"
-      or _"goto"
-      or _"if"
-      or _"in"
-      or _"local"
-      or _"nil"
-      or _"not"
-      or _"or"
-      or _"repeat"
-      or _"return"
-      or _"then"
-      or _"true"
-      or _"until"
-      or _"while"
+      -- https://www.lua.org/manual/5.4/manual.html#3.1
+      or _"and"   or _"break" or _"do"       or _"else" or _"elseif" or _"end"
+      or _"false" or _"for"   or _"function" or _"goto" or _"if"     or _"in"
+      or _"local" or _"nil"   or _"not"      or _"or"   or _"repeat" or _"return"
+      or _"then"  or _"true"  or _"until"    or _"while"
 
-      or _"%+"
-      or _"%-"
-      or _"%*"
-      or _"/"
-      or _"%%"
-      or _"%^"
-      or _"#"
-      or _"&"
-      or _"~"
-      or _"|"
-      or _"<<"
-      or _">>"
-      or _"//"
-      or _"=="
-      or _"~="
-      or _"<="
-      or _">="
-      or _"<"
-      or _">"
-      or _"="
-      or _"%("
-      or _"%)"
-      or _"{"
-      or _"}"
-      or _"%["
-      or _"%]"
-      or _"::"
-      or _";"
-      or _":"
-      or _","
-      or _"%."
-      or _"%.%."
-      or _"%.%.%."
+      or _"%+" or _"%-" or _"%*" or _"/"  or _"%%"   or _"%^" or _"#"
+      or _"&"  or _"~"  or _"|"  or _"<<" or _">>"   or _"//"
+      or _"==" or _"~=" or _"<=" or _">=" or _"<"    or _">"  or _"="
+      or _"%(" or _"%)" or _"{"  or _"}"  or _"%["   or _"%]" or _"::"
+      or _";"  or _":"  or _","  or _"%." or _"%.%." or _"%.%.%."
 
-      or _("[A-Za-z][0-9A-Za-z]*", "name")
+      or _("[%a_][%w_]*", "Name")
 
     if not token then
       print(position)
@@ -109,7 +64,6 @@ local function lexer(source)
       print(token.name, token.value, token.line)
       table.insert(tokens, token)
     end
-
   end
 
   return tokens
