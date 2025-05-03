@@ -10,26 +10,81 @@ local function lexer(source)
   local position = 1
   local line = 1
 
+  local function make_token(name, i, j, v)
+    local s = source:sub(i, j)
+
+    local token = {
+      i = i;
+      j = j;
+      line = line;
+      name = name == nil and s or name;
+      source = s;
+      value = v or s;
+    }
+
+    position = j + 1
+    line = line + select(2, s:gsub("\n", {}))
+
+    return token
+  end
+
   local function _(pattern, name, conv)
     local i, j, v = source:find("^"..pattern, position)
     if i then
-      assert(i == position)
-      local s = source:sub(i, j)
-      local v = v or s
+      if conv then
+        v = conv(assert(v))
+      end
+      return make_token(name, i, j, v)
+    end
+  end
 
-      local token = {
-        i = i;
-        j = j;
-        line = line;
-        name = name == nil and s or name;
-        source = s;
-        value = conv == nil and v or conv(v);
-      }
+  local function LongComment()
+    local i, j, v = source:find("^%-%-%[(=*)%[\n?", position)
+    if i then
+      local k, l = source:find("%]"..v.."%]", j + 1)
+      if not k then
+        error("unfinished long comment at line "..line)
+      end
+      return make_token(false, i, l, source:sub(j + 1, k - 1))
+    end
+  end
 
-      position = j + 1
-      line = line + select(2, s:gsub("\n", {}))
+  local function LongStringLiteral()
+    local i, j, v = source:find("^%[(=*)%[\n?", position)
+    if i then
+      local k, l = source:find("%]"..v.."%]", j + 1)
+      if not k then
+        error("unfinished long string literal at line "..line)
+      end
+      return make_token("StringLiteral", i, l, source:sub(j + 1, k - 1))
+    end
+  end
 
-      return token
+  local function ShortStringLiteral()
+    local i, j, v = source:find("^([\"'])", position)
+    if i then
+      local k, l = source:find("[^\\]"..v, position)
+      if not k then
+        error("unfinished short string literal at line "..line)
+      end
+      local v = source:sub(i + 1, k)
+        :gsub("\\([abfnrtv\\\"'])", {
+          a = "\a", b = "\b", f = "\f", n = "\n", r = "\r", t = "\t", v = "\v";
+          ["\\"] = "\\";
+          ["\""] = "\"";
+          ["'"] = "'";
+        })
+        :gsub("\\z%s+", "")
+        :gsub("\\x(%x%x)", function (v)
+          return string.char(tonumber(v, 16))
+        end)
+        :gsub("\\(%d%d?%d?)", function (v)
+          return string.char(tonumber(v, 10))
+        end)
+        :gsub("\\u{(%x+)}", function (v)
+          return utf8.char(tonumber(v, 16))
+        end)
+      return make_token("StringLiteral", i, l, v)
     end
   end
 
@@ -37,9 +92,17 @@ local function lexer(source)
   while position <= #source do
     local token
       =  _("%s+", false)
-      or _("%-%-[^\n\r]*", false)
-      or _("0[xX]%x+", "integer", tonumber)
-      or _("%d+", "integer", tonumber)
+
+      -- comment
+      or LongComment()
+      or _("%-%-([^\n\r]*)", false)
+
+      -- string
+      or LongStringLiteral()
+      or ShortStringLiteral()
+
+      or _("(0[xX]%x+)", "IntegerNumeral", tonumber)
+      or _("(%d+)", "IntegerNumeral", tonumber)
 
       -- https://www.lua.org/manual/5.4/manual.html#3.1
       or _"and"   or _"break" or _"do"       or _"else" or _"elseif" or _"end"
