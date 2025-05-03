@@ -4,8 +4,9 @@ local major, minor = assert(_VERSION:match "^Lua (%d+)%.(%d+)$")
 local version = major * 10 + minor
 assert(version >= 54)
 
--- 効率や速度は考えない
--- 改行コードはLF限定（行番号を数える際）
+-- 効率や速度はおいておく
+-- 行番号を数える際の改行コードはLF限定
+-- 浮動小数点数はサポートしない
 local function lexer(source)
   local position = 1
   local line = 1
@@ -102,7 +103,6 @@ local function lexer(source)
       or ShortStringLiteral()
 
       -- Numeral
-      -- 浮動小数点数はサポートしない
       or _("(0[xX]%x+)", "IntegerNumeral", tonumber)
       or _("(%d+)", "IntegerNumeral", tonumber)
 
