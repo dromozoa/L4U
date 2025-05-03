@@ -101,6 +101,8 @@ local function lexer(source)
       or LongStringLiteral()
       or ShortStringLiteral()
 
+      -- Numeral
+      -- 浮動小数点数はサポートしない
       or _("(0[xX]%x+)", "IntegerNumeral", tonumber)
       or _("(%d+)", "IntegerNumeral", tonumber)
 
