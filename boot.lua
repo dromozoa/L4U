@@ -121,12 +121,10 @@ local function lexer(source)
       or _("[%a_][%w_]*", "Name")
 
     if not token then
-      print(position)
       error("lexer error at line "..line)
     end
 
     if token.name then
-      print(token.name, token.value, token.line)
       table.insert(tokens, token)
     end
   end
@@ -134,8 +132,65 @@ local function lexer(source)
   return tokens
 end
 
-local class = {}
-local metatable = { __index = class }
+local function parser(tokens)
+  local class = {}
+  local metatable = { __index = class }
+
+  function class.new()
+    return setmetatable({
+      index = 1;
+    }, metatable)
+  end
+
+  function class:get()
+    return tokens[self.index]
+  end
+
+  function class:get_name()
+    return self:get().name
+  end
+
+  function class:unexpected()
+    local token = self:get()
+    error("unexpected token "..token.name.." at line "..token.line)
+  end
+
+  function class:accept()
+    local index = self.index
+    self.index = index + 1
+    return tokens[index]
+  end
+
+  -- 最急降下パーサの定義
+
+  function class:chunk()
+    return self:block()
+  end
+
+  function class:block()
+    while self:stat() do end
+    -- self:retstat()
+    return true
+  end
+
+  function class:stat()
+    -- function funcname funcbody
+    if self:get_name() == "function" then
+      return { self:accept(), assert(self:funcname()), assert(self:funcbody()) }
+    end
+  end
+
+  function class:funcname()
+    if self:get_name() == "Name" then
+      return self:accept()
+    end
+  end
+
+  function class:funcbody()
+    if self:get_name() == "(" then
+    end
+  end
+end
 
 function class.new(source)
   return setmetatable({}, metatable)
@@ -145,5 +200,4 @@ function class:parse()
 end
 
 local source = io.read "*a"
-lexer(source)
--- io.write(source)
+local tokens = lexer(source)
