@@ -125,6 +125,7 @@ local function lexer(source)
     end
 
     if token.name then
+      print(token.name, token.value)
       table.insert(tokens, token)
     end
   end
@@ -132,71 +133,46 @@ local function lexer(source)
   return tokens
 end
 
+-- 最急降下法で抽象構文木を作る
 local function parser(tokens)
   local class = {}
   local metatable = { __index = class }
 
   function class.new()
-    return setmetatable({
-      index = 1;
-    }, metatable)
+    return setmetatable({ tokens = tokens, index = 1 }, metatable)
   end
 
-  function class:get()
-    return tokens[self.index]
+  function class:peek()
+    return self.tokens[self.index]
   end
 
-  function class:get_name()
-    return self:get().name
-  end
-
-  function class:unexpected()
-    local token = self:get()
-    error("unexpected token "..token.name.." at line "..token.line)
-  end
-
-  function class:accept()
+  function class:next()
     local index = self.index
+    local token = self.tokens[index]
     self.index = index + 1
-    return tokens[index]
+    return token
   end
 
-  -- 最急降下パーサの定義
-
-  function class:chunk()
-    return self:block()
-  end
-
-  function class:block()
-    while self:stat() do end
-    -- self:retstat()
-    return true
-  end
-
-  function class:stat()
-    -- function funcname funcbody
-    if self:get_name() == "function" then
-      return { self:accept(), assert(self:funcname()), assert(self:funcbody()) }
+  function class:expect(name)
+    local token = self:next()
+    if token.name ~= name then
+      error("unexpected token at line "..token.line.." (<"..name.."> expected, got <"..token.name..">)")
     end
   end
 
-  function class:funcname()
-    if self:get_name() == "Name" then
-      return self:accept()
-    end
-  end
-
-  function class:funcbody()
-    if self:get_name() == "(" then
-    end
-  end
-end
-
-function class.new(source)
-  return setmetatable({}, metatable)
-end
-
-function class:parse()
+  local precendence_table = {
+    { "or" };
+    { "and" };
+    { "<", ">", "<=", ">=", "~=", "==" };
+    { "|" };
+    { "~" };
+    { "&" };
+    { "<<", ">>" };
+    { ".." };
+    { "+", "-" };
+    { "*", "/", "//", "%" };
+    { "^" };
+  }
 end
 
 local source = io.read "*a"
