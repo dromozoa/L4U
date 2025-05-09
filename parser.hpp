@@ -10,21 +10,6 @@
 class node;
 using node_ptr = std::shared_ptr<node>;
 
-class context {
-};
-
-class token {
-public:
-
-private:
-  int type_;
-  std::size_t begin_;
-  std::size_t end_;
-
-  std::string value;
-
-};
-
 class node {
 public:
   node(const std::string& tag)
@@ -42,5 +27,21 @@ private:
   std::string value_;
   std::vector<node_ptr> nodes_;
 };
+
+inline node_ptr make_node(const std::string& tag) {
+  return std::make_shared<node>(tag);
+}
+
+inline node_ptr make_node(const std::string& tag, const std::string& value) {
+  return std::make_shared<node>(tag, value);
+}
+
+class context {
+};
+
+int l4ua_lex(int token, context& ctx) {
+  
+}
+
 
 #endif
