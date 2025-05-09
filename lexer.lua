@@ -10,9 +10,11 @@ end
 
 local rules = {
   { pattern "%s+", false };
+  { pattern "%-%-[^\n\r]*", false };
   { pattern "0[xX]%x+", "INTEGER" };
   { pattern "%d+", "INTEGER" };
   { "=", "EQ" };
+  { "local" };
   { pattern "[%a_][%w_]*", "NAME" };
 }
 
@@ -56,7 +58,7 @@ for _, rule in ipairs(rules) do
       tokens.map[name] = token
       tokens[n + 1] = token
     end
-    rules[2] = token
+    rule[3] = token
   end
 end
 
@@ -89,4 +91,26 @@ if command == "update" then
   end
 
   assert(os.rename("parser.yy.new", "parser.yy"))
+  return
+end
+
+local source = io.read "*a"
+local position = 1
+while position <= #source do
+  local i, j, token
+  for _, rule in ipairs(rules) do
+    i, j = rule[1](source, position)
+    if i then
+      token = rule[3]
+      break
+    end
+  end
+  if not i then
+    error("lexer error at position "..position)
+  end
+
+  position = j + 1
+  if token then
+    print(i, j, token.name)
+  end
 end

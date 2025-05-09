@@ -1,6 +1,3 @@
 -- vim:filetype=lua:
 
-function main()
-  '\043\"\u{3042}'
-
-end
+local x = 42
