@@ -1,6 +1,6 @@
 #! /usr/bin/env lua
 
-local command = ...
+local command, filename = ...
 
 local function pattern(pattern)
   return function (source, position)
@@ -63,8 +63,8 @@ for _, rule in ipairs(rules) do
 end
 
 if command == "update" then
-  local ih = assert(io.open("parser.yy"))
-  local oh = assert(io.open("parser.yy.new", "w"))
+  local ih = assert(io.open(filename))
+  local oh = assert(io.open(filename..".new", "w"))
 
   local state = 1
   for line in ih:lines() do
@@ -90,12 +90,16 @@ if command == "update" then
     end
   end
 
-  assert(os.rename("parser.yy.new", "parser.yy"))
+  assert(os.rename(filename..".new", filename))
   return
 end
 
 local source = io.read "*a"
+
 local position = 1
+local line = 1
+local column = 1
+
 while position <= #source do
   local i, j, token
   for _, rule in ipairs(rules) do

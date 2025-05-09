@@ -5,6 +5,7 @@
 %define api.value.type variant
 
 %param {context& ctx}
+%locations
 
 %code requires {
   #include "parser.hpp"
@@ -14,7 +15,8 @@
 %token EOF 1000
 %token <std::string> INTEGER 1001
 %token EQ 1002
-%token <std::string> NAME 1003
+%token LOCAL 1003
+%token <std::string> NAME 1004
 // END TOKENS
 
 %type <node_ptr> chunk stat stat_list expr
@@ -36,10 +38,10 @@ stat_list
   };
 
 stat
-  : NAME EQ expr {
-    $$ = make_node("assign");
-    $$->add(make_node("Name", $1));
-    $$->add($3);
+  : LOCAL NAME EQ expr {
+    $$ = make_node("local");
+    $$->add(make_node("Name", $2));
+    $$->add($4);
   };
 
 expr
