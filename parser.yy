@@ -10,8 +10,13 @@
   #include "parser.hpp"
 }
 
-%token <std::string> NAME INTEGER
-%token EQ EOF
+// BEGIN TOKENS
+%token EOF 1000
+%token <std::string> INTEGER 1001
+%token IF 1002
+%token EQ 1003
+%token <std::string> NAME 1004
+// END TOKENS
 
 %type <node_ptr> chunk stat stat_list expr
 
