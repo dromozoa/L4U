@@ -1,2 +1,2 @@
-parser.cxx: parser.y parser.hpp
+parser.cxx: parser.yy parser.hpp
 	bison -o $@ $<
