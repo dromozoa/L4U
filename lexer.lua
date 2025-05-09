@@ -90,5 +90,3 @@ if command == "update" then
 
   assert(os.rename("parser.yy.new", "parser.yy"))
 end
-
-
