@@ -12,7 +12,6 @@ local rules = {
   { pattern "%s+", false };
   { pattern "0[xX]%x+", "INTEGER" };
   { pattern "%d+", "INTEGER" };
-  { "if" };
   { "=", "EQ" };
   { pattern "[%a_][%w_]*", "NAME" };
 }
@@ -88,4 +87,8 @@ if command == "update" then
       oh:write(line, "\n")
     end
   end
+
+  assert(os.rename("parser.yy.new", "parser.yy"))
 end
+
+

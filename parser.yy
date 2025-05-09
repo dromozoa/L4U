@@ -13,9 +13,8 @@
 // BEGIN TOKENS
 %token EOF 1000
 %token <std::string> INTEGER 1001
-%token IF 1002
-%token EQ 1003
-%token <std::string> NAME 1004
+%token EQ 1002
+%token <std::string> NAME 1003
 // END TOKENS
 
 %type <node_ptr> chunk stat stat_list expr
