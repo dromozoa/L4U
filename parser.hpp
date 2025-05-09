@@ -6,7 +6,14 @@
 #include <utility>
 
 class node;
-using node_ptr = std::unique_ptr<node>;
+using node_ptr = std::shared_ptr<node>;
+
+class token {
+public:
+
+private:
+
+};
 
 class node {
 public:

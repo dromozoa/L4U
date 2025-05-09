@@ -1,6 +1,7 @@
 %require "3.2"
 %language "C++"
 
+%define api.prefix {l4ua_}
 %define api.value.type variant
 
 %code requires {

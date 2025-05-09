@@ -1,2 +1,2 @@
 .*.swp
-parser.tab.cc
+*.cxx
