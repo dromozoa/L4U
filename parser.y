@@ -4,20 +4,22 @@
 %define api.prefix {l4ua_}
 %define api.value.type variant
 
+%locations
+%param {context& ctx}
+
 %code requires {
   #include "parser.hpp"
 }
 
-%token <std::string> TK_NUMBER "number"
-%token <std::string> TK_NAME "name"
-%token TK_EQUAL TK_EOF
+%token <std::string> Integer Name
+%token Equal EOF_TOKEN
 
 %type <node> chunk stat stat_list expr
 
 %%
 
 chunk
-  : stat_list TK_EOF
+  : stat_list EOF_TOKEN
   ;
 
 stat_list
@@ -28,7 +30,7 @@ stat_list
   };
 
 stat
-  : TK_NAME TK_EQUAL expr {
+  : Name Equal expr {
     auto node = std::make_unique<node>("Assign");
     node->add(std::make_unique<node>("Name", $1));
     node->add($3);
@@ -36,8 +38,8 @@ stat
   };
 
 expr
-  : TK_NUMBER {
-    auto node = std::make_unique<node>("Number", $1);
+  : Integer {
+    auto node = std::make_unique<node>("integer", $1);
     $$ = node;
   };
 
