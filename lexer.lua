@@ -15,7 +15,7 @@ end
 
 local function write(handle, token_name, token_id, v, i_line, i_column, j_line, j_column)
   print(token_name, ("%q"):format(v), i_line, i_column, j_line, j_column)
-  handle:write(("<!1i4s4i4i4i4i4"):pack(token_id, v, i_line, i_column, j_line, j_column))
+  handle:write(("<!1I4s4I4I4I4I4"):pack(token_id, v, i_line, i_column, j_line, j_column))
 end
 
 local rules = {

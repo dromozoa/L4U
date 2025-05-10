@@ -1,10 +1,17 @@
 #ifndef L4UA_PARSER_PROLOGUE_HPP
 #define L4UA_PARSER_PROLOGUE_HPP
 
+#include <cerrno>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
+#include <exception>
+#include <iostream>
 #include <memory>
+#include <sstream>
+#include <stdexcept>
 #include <string>
+#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -14,7 +21,7 @@ namespace l4ua {
 
   class node {
   public:
-    node(const std::string& tag)
+    explicit node(const std::string& tag)
       : tag_(tag) {}
 
     node(const std::string& tag, const std::string& value)
@@ -38,14 +45,90 @@ namespace l4ua {
     return std::make_shared<node>(tag, value);
   }
 
+  struct token {
+    std::uint32_t token_id;
+    std::string value;
+    std::uint32_t begin_line;
+    std::uint32_t begin_column;
+    std::uint32_t end_line;
+    std::uint32_t end_column;
+  };
+
   class context {
   public:
+    explicit context(const char* filename)
+      : token_index_() { load(filename); }
+
+    const token& next() {
+      return tokens_.at(token_index_++);
+    }
+
+  private:
+    std::vector<token> tokens_;
+    std::size_t token_index_;
+
+    void load(const char* path) {
+      using file_handle_t = std::unique_ptr<FILE, decltype(&std::fclose)>;
+
+      if (file_handle_t handle = file_handle_t(fopen(path, "rb"), &std::fclose)) {
+        std::vector<char> buffer;
+        while (!std::feof(handle.get())) {
+          token tk = {};
+
+          if (std::fread(&tk.token_id, sizeof(tk.token_id), 1, handle.get()) != 1) {
+            throw std::system_error(errno, std::generic_category(), "cannot fread");
+          }
+
+          std::uint32_t size = 0;
+          if (std::fread(&size, 4, 1, handle.get()) != 1) {
+            throw std::system_error(errno, std::generic_category(), "cannot fread");
+          }
+          buffer.resize(size);
+          if (std::fread(buffer.data(), 1, size, handle.get()) != size) {
+            throw std::system_error(errno, std::generic_category(), "cannot fread");
+          }
+          tk.value = std::string(buffer.data(), buffer.size());
+
+          if (std::fread(&tk.begin_line, sizeof(tk.begin_line), 1, handle.get()) != 1) {
+            throw std::system_error(errno, std::generic_category(), "cannot fread");
+          }
+          if (std::fread(&tk.begin_column, sizeof(tk.begin_column), 1, handle.get()) != 1) {
+            throw std::system_error(errno, std::generic_category(), "cannot fread");
+          }
+          if (std::fread(&tk.end_line, sizeof(tk.end_line), 1, handle.get()) != 1) {
+            throw std::system_error(errno, std::generic_category(), "cannot fread");
+          }
+          if (std::fread(&tk.end_column, sizeof(tk.end_column), 1, handle.get()) != 1) {
+            throw std::system_error(errno, std::generic_category(), "cannot fread");
+          }
+
+          if (ferror(handle.get())) {
+            throw std::system_error(errno, std::generic_category(), "ferror");
+          }
+
+          std::cerr
+            << tk.token_id << "\t"
+            << tk.value << "\t"
+            << tk.begin_line << "\t" << tk.begin_column << "\t"
+            << tk.end_line << "\t" << tk.end_column << "\n";
+
+          tokens_.push_back(tk);
+          if (tk.token_id == 1000) {
+            break;
+          }
+        }
+      } else {
+        throw std::system_error(errno, std::generic_category(), "cannot fopen");
+      }
+    }
   };
 
   // T = l4ua::parser::value_type
   // U = l4ua::location
   template <class T, class U>
   int yylex(T* token, U* location, context& ctx) {
+    token tk = ctx.next();
+
     return 1000;
   }
 }
