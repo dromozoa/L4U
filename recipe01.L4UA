@@ -2,4 +2,6 @@
 
 function main()
   local a = 42
+  local b = 69
+  local c = a * b + a
 end

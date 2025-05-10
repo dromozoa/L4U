@@ -23,6 +23,10 @@ local rules = {
   { pattern "%s+", false };
   { pattern "%-%-[^\n\r]*", false };
   { pattern "%d+", "INTEGER" };
+  { "+", "ADD" };
+  { "-", "SUB" };
+  { "*", "MUL" };
+  { "/", "DIV" };
   { "=", "EQ" };
   { "(", "LP" };
   { ")", "RP" };
