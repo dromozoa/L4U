@@ -8,6 +8,11 @@ local function pattern(pattern)
   end
 end
 
+local function make_position(source, n)
+  local s, n = source:sub(1, n):gsub("\n+$", ""):gsub(".-\n", "")
+  return n, #s
+end
+
 local rules = {
   { pattern "%s+", false };
   { pattern "%-%-[^\n\r]*", false };
@@ -97,14 +102,14 @@ end
 local source = io.read "*a"
 
 local position = 1
-local line = 1
-local column = 1
-
 while position <= #source do
-  local i, j, token
+  local i, j, v, token
   for _, rule in ipairs(rules) do
-    i, j = rule[1](source, position)
+    i, j, v = rule[1](source, position)
     if i then
+      if not v then
+        v = source:sub(i, j)
+      end
       token = rule[3]
       break
     end
@@ -112,9 +117,15 @@ while position <= #source do
   if not i then
     error("lexer error at position "..position)
   end
+  assert(i == position)
+
+  if token then
+    local i_line, i_column = make_position(source, i)
+    local j_line, j_column = make_position(source, j)
+    io.write(("<!1i4s4i4i4i4i4"):pack(token.id, v, i_line, i_column, j_line, j_column))
+  end
 
   position = j + 1
-  if token then
-    print(i, j, token.name)
-  end
 end
+
+io.write(("<!1i4s4i4i4i4i4"):pack(token_eof, "EOF", 0, 0, 0, 0))

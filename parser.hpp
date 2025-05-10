@@ -39,7 +39,8 @@ inline node_ptr make_node(const std::string& tag, const std::string& value) {
 class context {
 };
 
-int l4ua_lex(int token, context& ctx) {
+template <class T>
+int l4ua_lex(int token, T& location, context& ctx) {
   
 }
 
