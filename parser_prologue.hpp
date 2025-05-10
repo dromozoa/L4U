@@ -23,6 +23,37 @@ namespace l4ua {
   class node;
   using node_ptr = std::shared_ptr<node>;
 
+  static const std::string quote_lua_table[] = {
+    "\\000", "\\001", "\\002", "\\003", "\\004", "\\005", "\\006", "\\a",
+    "\\b",   "\\t",   "\\n",   "\\v",   "\\f",   "\\r",   "\\014", "\\015",
+    "\\016", "\\017", "\\018", "\\019", "\\020", "\\021", "\\022", "\\023",
+    "\\024", "\\025", "\\026", "\\027", "\\028", "\\029", "\\030", "\\031",
+  };
+
+  inline std::string quote_lua(const std::string& source) {
+    std::string result("\"");
+    for (const char c : source) {
+      if (0 <= c && c < 32) {
+        result += quote_lua_table[c];
+      } else {
+        switch (c) {
+          case '"':
+            result += "\\\"";
+            break;
+          case '\\':
+            result += "\\\\";
+            break;
+          case '\x7F':
+            result += "\\127";
+            break;
+          default:
+            result += c;
+        }
+      }
+    }
+    return result + '"';
+  }
+
   class node {
   public:
     explicit node(const std::string& name)
@@ -45,7 +76,20 @@ namespace l4ua {
     }
 
     void print(std::ostream& out) {
-      out << name_ << "\n";
+      out << "{name=" << quote_lua(name_) << ";\n";
+      if (has_value_) {
+        out << "value=" << quote_lua(value_) << ";\n";
+      }
+      out << "begin_line=" << begin_line_ << ";\n";
+      out << "begin_column=" << begin_column_ << ";\n";
+      out << "end_line=" << end_line_ << ";\n";
+      out << "end_column=" << end_column_ << ";\n";
+
+      for (const node_ptr& that : nodes_) {
+        that->print(out);
+        out << ";\n";
+      }
+      out << "}";
     }
 
   private:
@@ -98,7 +142,9 @@ namespace l4ua {
     void print(node_ptr node) {
       std::ofstream out(output_file_, std::ios::out | std::ios::binary);
       out.exceptions(std::ios::failbit);
+      out << "return ";
       node->print(out);
+      out << "\n";
     }
 
   private:
