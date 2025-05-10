@@ -22,9 +22,12 @@ end
 local rules = {
   { pattern "%s+", false };
   { pattern "%-%-[^\n\r]*", false };
-  { pattern "0[xX]%x+", "INTEGER" };
   { pattern "%d+", "INTEGER" };
   { "=", "EQ" };
+  { "(", "LP" };
+  { ")", "RP" };
+  { "end" };
+  { "function" };
   { "local" };
   { pattern "[%a_][%w_]*", "NAME" };
 }

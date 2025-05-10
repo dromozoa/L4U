@@ -16,34 +16,55 @@
 %token TOKEN_EOF 1000
 %token <std::string> INTEGER 1001
 %token EQ 1002
-%token LOCAL 1003
-%token <std::string> NAME 1004
+%token LP 1003
+%token RP 1004
+%token END 1005
+%token FUNCTION 1006
+%token LOCAL 1007
+%token <std::string> NAME 1008
 // END TOKENS
 
-%type <node_ptr> chunk stat stat_list expr
+%type <node_ptr> chunk block stat funcbody parlist expr
 
 %%
 
 chunk
-  : stat_list TOKEN_EOF {
+  : block TOKEN_EOF {
     $$ = $1;
     ctx.print($$);
   };
 
-stat_list
+block
   : {
-    $$ = make_node("stat_list", @$);
+    $$ = make_node("block", @$);
   }
-  | stat_list stat {
+  | block stat {
     $1->add($2);
     $$ = $1;
   };
 
 stat
-  : LOCAL NAME EQ expr {
+  : FUNCTION NAME funcbody {
+    $$ = make_node("function", @$);
+    $$->add(make_node("Name", $2, @2));
+    $$->add($3);
+  }
+  | LOCAL NAME EQ expr {
     $$ = make_node("local", @$);
     $$->add(make_node("Name", $2, @2));
     $$->add($4);
+  };
+
+funcbody
+  : LP parlist RP block END {
+    $$ = make_node("funcbody", @$);
+    $$->add($2);
+    $$->add($4);
+  };
+
+parlist
+  : {
+    $$ = make_node("parlist", @$);
   };
 
 expr

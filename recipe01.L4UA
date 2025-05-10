@@ -1,3 +1,5 @@
 -- vim:filetype=lua:
 
-local x = 42
+function main()
+  local a = 42
+end
