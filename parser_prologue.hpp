@@ -1,5 +1,5 @@
-#ifndef L4UA_PARSER_HPP
-#define L4UA_PARSER_HPP
+#ifndef L4UA_PARSER_PROLOGUE_HPP
+#define L4UA_PARSER_PROLOGUE_HPP
 
 #include <cstddef>
 #include <cstdint>

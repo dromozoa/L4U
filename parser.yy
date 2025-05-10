@@ -9,7 +9,7 @@
 %locations
 
 %code requires {
-  #include "parser.hpp"
+  #include "parser_prologue.hpp"
 }
 
 // BEGIN TOKENS

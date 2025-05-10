@@ -3,7 +3,7 @@ all:: parser
 parser.yy: lexer.lua
 	./lexer.lua update $@
 
-parser.cxx: parser.yy parser.hpp
+parser.cxx: parser.yy parser_prologue.hpp parser_epilogue.hpp
 	bison -o $@ $<
 
 parser: parser.cxx

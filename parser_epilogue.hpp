@@ -1,0 +1,4 @@
+#ifndef L4UA_PARSER_EPILOGUE_HPP
+#define L4UA_PARSER_EPILOGUE_HPP
+
+#endif
