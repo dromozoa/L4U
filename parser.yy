@@ -27,6 +27,7 @@
 chunk
   : stat_list TOKEN_EOF {
     $$ = $1;
+    ctx.print($$);
   };
 
 stat_list

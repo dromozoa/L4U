@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <exception>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -29,6 +30,10 @@ namespace l4ua {
 
     void add(node_ptr node) {
       nodes_.push_back(std::move(node));
+    }
+
+    void print(std::ostream& out) {
+      out << tag_ << "\n";
     }
 
   private:
@@ -57,8 +62,8 @@ namespace l4ua {
 
   class context {
   public:
-    explicit context(const char* filename)
-      : token_index_() { load(filename); }
+    context(const char* input_file, const char* output_file)
+      : token_index_(), output_file_(output_file) { load(input_file); }
 
     const token* next() {
       if (token_index_ < tokens_.size()) {
@@ -68,14 +73,21 @@ namespace l4ua {
       }
     }
 
+    void print(node_ptr node) {
+      std::ofstream out(output_file_, std::ios::out | std::ios::binary);
+      out.exceptions(std::ios::failbit);
+      node->print(out);
+    }
+
   private:
     std::vector<token> tokens_;
     std::size_t token_index_;
+    std::string output_file_;
 
-    void load(const char* path) {
+    void load(const char* file) {
       using file_handle_t = std::unique_ptr<FILE, decltype(&std::fclose)>;
 
-      if (file_handle_t handle = file_handle_t(fopen(path, "rb"), &std::fclose)) {
+      if (file_handle_t handle = file_handle_t(fopen(file, "rb"), &std::fclose)) {
         std::vector<char> buffer;
         while (!std::feof(handle.get())) {
           token tk = {};

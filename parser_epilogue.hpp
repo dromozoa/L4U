@@ -17,7 +17,7 @@ int main(int ac, char* av[]) {
   }
 
   try {
-    l4ua::context context(av[1]);
+    l4ua::context context(av[1], av[2]);
     l4ua::parser parser(context);
     parser.parse();
 
