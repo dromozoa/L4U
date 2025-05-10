@@ -11,15 +11,16 @@ namespace l4ua {
 
 // input_file output_file
 int main(int ac, char* av[]) {
-  using namespace l4ua;
-
   if (ac < 3) {
     std::cerr << av[0] << " input_file output_file\n";
     return 1;
   }
 
   try {
-    context ctx(av[1]);
+    l4ua::context context(av[1]);
+    l4ua::parser parser(context);
+    parser.parse();
+
     return 0;
   } catch (const std::exception& e) {
     std::cerr << e.what() << "\n";

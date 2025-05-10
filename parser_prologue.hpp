@@ -46,12 +46,13 @@ namespace l4ua {
   }
 
   struct token {
-    std::uint32_t token_id;
+    std::int32_t token_id;
+    std::int32_t capture;
     std::string value;
-    std::uint32_t begin_line;
-    std::uint32_t begin_column;
-    std::uint32_t end_line;
-    std::uint32_t end_column;
+    std::int32_t begin_line;
+    std::int32_t begin_column;
+    std::int32_t end_line;
+    std::int32_t end_column;
   };
 
   class context {
@@ -59,8 +60,12 @@ namespace l4ua {
     explicit context(const char* filename)
       : token_index_() { load(filename); }
 
-    const token& next() {
-      return tokens_.at(token_index_++);
+    const token* next() {
+      if (token_index_ < tokens_.size()) {
+        return &tokens_[token_index_++];
+      } else {
+        return nullptr;
+      }
     }
 
   private:
@@ -79,8 +84,12 @@ namespace l4ua {
             throw std::system_error(errno, std::generic_category(), "cannot fread");
           }
 
+          if (std::fread(&tk.capture, sizeof(tk.capture), 1, handle.get()) != 1) {
+            throw std::system_error(errno, std::generic_category(), "cannot fread");
+          }
+
           std::uint32_t size = 0;
-          if (std::fread(&size, 4, 1, handle.get()) != 1) {
+          if (std::fread(&size, sizeof(size), 1, handle.get()) != 1) {
             throw std::system_error(errno, std::generic_category(), "cannot fread");
           }
           buffer.resize(size);
@@ -108,12 +117,13 @@ namespace l4ua {
 
           std::cerr
             << tk.token_id << "\t"
+            << tk.capture << "\t"
             << tk.value << "\t"
             << tk.begin_line << "\t" << tk.begin_column << "\t"
             << tk.end_line << "\t" << tk.end_column << "\n";
 
           tokens_.push_back(tk);
-          if (tk.token_id == 1000) {
+          if (tk.token_id == 1000) { // TOKEN_EOF
             break;
           }
         }
@@ -126,10 +136,21 @@ namespace l4ua {
   // T = l4ua::parser::value_type
   // U = l4ua::location
   template <class T, class U>
-  int yylex(T* token, U* location, context& ctx) {
-    token tk = ctx.next();
+  int yylex(T* value, U* location, context& ctx) {
+    if (const token* tk = ctx.next()) {
+      if (tk->capture) {
+        value->template as<std::string>() = tk->value;
+      }
 
-    return 1000;
+      location->begin.line = tk->begin_line;
+      location->begin.column = tk->begin_column;
+      location->end.line = tk->end_line;
+      location->end.column = tk->end_column;
+
+      return tk->token_id;
+    } else {
+      return 0; // YYEOF
+    }
   }
 }
 

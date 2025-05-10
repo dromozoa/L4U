@@ -10,12 +10,13 @@ end
 
 local function make_position(source, n)
   local s, n = source:sub(1, n):gsub("\n+$", ""):gsub(".-\n", "")
-  return n, #s
+  return n + 1, #s
 end
 
-local function write(handle, token_name, token_id, v, i_line, i_column, j_line, j_column)
-  print(token_name, ("%q"):format(v), i_line, i_column, j_line, j_column)
-  handle:write(("<!1I4s4I4I4I4I4"):pack(token_id, v, i_line, i_column, j_line, j_column))
+local function write(handle, token, v, i_line, i_column, j_line, j_column)
+  local capture = token.capture and 1 or 0
+  print(token.name, token.id, capture, ("%q"):format(v), i_line, i_column, j_line, j_column)
+  handle:write(("<!1i4i4s4i4i4i4i4"):pack(token.id, capture, v, i_line, i_column, j_line, j_column))
 end
 
 local rules = {
@@ -132,11 +133,11 @@ while position <= #source do
   if token then
     local i_line, i_column = make_position(source, i)
     local j_line, j_column = make_position(source, j)
-    write(handle, token.name, token.id, v, i_line, i_column, j_line, j_column)
+    write(handle, token, v, i_line, i_column, j_line, j_column)
   end
 
   position = j + 1
 end
 
-write(handle, "TOKEN_EOF", token_eof, "TOKEN_EOF", 0, 0, 0, 0)
+write(handle, tokens[1], "TOKEN_EOF", 0, 0, 0, 0)
 handle:close()
