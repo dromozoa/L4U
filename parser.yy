@@ -2,6 +2,7 @@
 %language "C++"
 
 %define api.prefix {l4ua_}
+%define api.namespace {l4ua}
 %define api.value.type variant
 
 %param {context& ctx}
@@ -12,7 +13,7 @@
 }
 
 // BEGIN TOKENS
-%token EOF 1000
+%token TOKEN_EOF 1000
 %token <std::string> INTEGER 1001
 %token EQ 1002
 %token LOCAL 1003
@@ -24,7 +25,7 @@
 %%
 
 chunk
-  : stat_list EOF {
+  : stat_list TOKEN_EOF {
     $$ = $1;
   };
 
@@ -51,6 +52,6 @@ expr
 
 %%
 
-int main(int ac, char* av) {
+int main(int ac, char* av[]) {
   return 0;
 }

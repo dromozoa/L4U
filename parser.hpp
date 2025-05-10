@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 class node;
 using node_ptr = std::shared_ptr<node>;
@@ -18,7 +19,7 @@ public:
   node(const std::string& tag, const std::string& value)
     : tag_(tag), value_(value) {}
 
-  void add(node_ptr&& node) {
+  void add(node_ptr node) {
     nodes_.push_back(std::move(node));
   }
 
@@ -37,12 +38,12 @@ inline node_ptr make_node(const std::string& tag, const std::string& value) {
 }
 
 class context {
+public:
 };
 
-template <class T>
-int l4ua_lex(int token, T& location, context& ctx) {
-  
+template <class T, class U>
+int l4ua_lex(T* token, U* location, context& ctx) {
+  return 1000;
 }
-
 
 #endif

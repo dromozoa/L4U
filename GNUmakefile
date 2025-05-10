@@ -1,7 +1,10 @@
-all:: parser.cxx
+all:: parser
 
 parser.yy: lexer.lua
 	./lexer.lua update $@
 
 parser.cxx: parser.yy parser.hpp
 	bison -o $@ $<
+
+parser: parser.cxx
+	$(CXX) -W -std=c++20 -O3 $^ -o $@

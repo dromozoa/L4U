@@ -28,7 +28,7 @@ local tokens = {
   map = {};
   {
     id = token_eof;
-    name = "EOF";
+    name = "TOKEN_EOF";
   };
 }
 
@@ -128,4 +128,4 @@ while position <= #source do
   position = j + 1
 end
 
-io.write(("<!1i4s4i4i4i4i4"):pack(token_eof, "EOF", 0, 0, 0, 0))
+io.write(("<!1i4s4i4i4i4i4"):pack(token_eof, "TOKEN_EOF", 0, 0, 0, 0))
