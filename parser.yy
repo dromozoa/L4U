@@ -1,7 +1,7 @@
 %require "3.2"
 %language "C++"
 
-%define api.prefix {l4ua_}
+// %define api.prefix {l4ua_}
 %define api.namespace {l4ua}
 %define api.value.type variant
 
@@ -52,6 +52,4 @@ expr
 
 %%
 
-int main(int ac, char* av[]) {
-  return 0;
-}
+#include "parser_epilogue.hpp"
