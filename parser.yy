@@ -32,7 +32,7 @@ chunk
 
 stat_list
   : {
-    $$ = make_node("stat_list");
+    $$ = make_node("stat_list", @$);
   }
   | stat_list stat {
     $1->add($2);
@@ -41,14 +41,14 @@ stat_list
 
 stat
   : LOCAL NAME EQ expr {
-    $$ = make_node("local");
-    $$->add(make_node("Name", $2));
+    $$ = make_node("local", @$);
+    $$->add(make_node("Name", $2, @2));
     $$->add($4);
   };
 
 expr
   : INTEGER {
-    $$ = make_node("integer", $1);
+    $$ = make_node("integer", $1, @1);
   };
 
 %%

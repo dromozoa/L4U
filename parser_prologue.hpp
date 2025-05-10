@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+
 #include <exception>
 #include <fstream>
 #include <iostream>
@@ -17,37 +18,58 @@
 #include <vector>
 
 namespace l4ua {
+  class location;
+
   class node;
   using node_ptr = std::shared_ptr<node>;
 
   class node {
   public:
-    explicit node(const std::string& tag)
-      : tag_(tag) {}
+    explicit node(const std::string& name)
+      : name_(name),
+        has_value_(),
+        begin_line_(),
+        begin_column_(),
+        end_line_(),
+        end_column_() {}
 
-    node(const std::string& tag, const std::string& value)
-      : tag_(tag), value_(value) {}
+    void set_value(const std::string& value) {
+      has_value_ = true;
+      value_ = value;
+    }
+
+    void set_location(const location&);
 
     void add(node_ptr node) {
       nodes_.push_back(std::move(node));
     }
 
     void print(std::ostream& out) {
-      out << tag_ << "\n";
+      out << name_ << "\n";
     }
 
   private:
-    std::string tag_;
+    std::string name_;
+    bool has_value_;
     std::string value_;
+    int begin_line_;
+    int begin_column_;
+    int end_line_;
+    int end_column_;
     std::vector<node_ptr> nodes_;
   };
 
-  inline node_ptr make_node(const std::string& tag) {
-    return std::make_shared<node>(tag);
+  inline node_ptr make_node(const std::string& name, const location& location) {
+    node_ptr self = std::make_shared<node>(name);
+    self->set_location(location);
+    return self;
   }
 
-  inline node_ptr make_node(const std::string& tag, const std::string& value) {
-    return std::make_shared<node>(tag, value);
+  inline node_ptr make_node(const std::string& name, const std::string& value, const location& location) {
+    node_ptr self = std::make_shared<node>(name);
+    self->set_value(value);
+    self->set_location(location);
+    return self;
   }
 
   struct token {
@@ -148,7 +170,7 @@ namespace l4ua {
   // T = l4ua::parser::value_type
   // U = l4ua::location
   template <class T, class U>
-  int yylex(T* value, U* location, context& ctx) {
+  inline int yylex(T* value, U* location, context& ctx) {
     if (const token* tk = ctx.next()) {
       if (tk->capture) {
         value->template as<std::string>() = tk->value;

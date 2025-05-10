@@ -2,6 +2,13 @@
 #define L4UA_PARSER_EPILOGUE_HPP
 
 namespace l4ua {
+  void node::set_location(const location& location) {
+    begin_line_ = location.begin.line;
+    begin_column_ = location.begin.column;
+    end_line_ = location.end.line;
+    end_column_ = location.end.column;
+  }
+
   void parser::error(const location& location, const std::string& message) {
     std::ostringstream out;
     out << "parser error at " << location << ": " << message;
