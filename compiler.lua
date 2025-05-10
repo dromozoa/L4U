@@ -1,5 +1,3 @@
 #! /usr/bin/env lua
 
-local filename = ...
-
-
+local root = assert(load(io.read "*a"))()
