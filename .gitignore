@@ -1,4 +1,6 @@
 .*.swp
+*.ast
 *.cxx
+*.lex
 *.dSYM
 parser
