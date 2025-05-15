@@ -30,6 +30,8 @@ local rules = {
   { "=", "EQ" };
   { "(", "LP" };
   { ")", "RP" };
+  { "<", "LT" };
+  { ">", "GT" };
   { "end" };
   { "function" };
   { "local" };

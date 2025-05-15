@@ -1,7 +1,7 @@
 -- vim:filetype=lua:
 
 function main()
-  local a = 42
-  local b = 69
-  local c = a * b + a
+  local a <i32> = 42
+  local b <i32> = 69
+  local c <i32> = a * b + a
 end

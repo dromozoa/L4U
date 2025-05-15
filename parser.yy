@@ -21,13 +21,15 @@
 %token EQ 1006
 %token LP 1007
 %token RP 1008
-%token END 1009
-%token FUNCTION 1010
-%token LOCAL 1011
-%token <std::string> NAME 1012
+%token LT 1009
+%token GT 1010
+%token END 1011
+%token FUNCTION 1012
+%token LOCAL 1013
+%token <std::string> NAME 1014
 // END TOKENS
 
-%type <node_ptr> chunk block stat funcbody parlist exp
+%type <node_ptr> chunk block attrib stat funcbody parlist exp
 
 %left ADD SUB
 %left MUL DIV
@@ -49,16 +51,22 @@ block
     $$ = $1;
   };
 
+attrib
+  : LT NAME GT {
+    $$ = make_node("attrib", $2, @2);
+  };
+
 stat
   : FUNCTION NAME funcbody {
     $$ = make_node("function", @$);
     $$->add(make_node("name", $2, @2));
     $$->add($3);
   }
-  | LOCAL NAME EQ exp {
+  | LOCAL NAME attrib EQ exp {
     $$ = make_node("local", @$);
     $$->add(make_node("name", $2, @2));
-    $$->add($4);
+    $$->add($3);
+    $$->add($5);
   };
 
 funcbody
