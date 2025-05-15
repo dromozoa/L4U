@@ -1,5 +1,5 @@
-#ifndef L4UA_PARSER_PROLOGUE_HPP
-#define L4UA_PARSER_PROLOGUE_HPP
+#ifndef L4U_PARSER_PROLOGUE_HPP
+#define L4U_PARSER_PROLOGUE_HPP
 
 #include <cerrno>
 #include <cstddef>
@@ -17,7 +17,7 @@
 #include <utility>
 #include <vector>
 
-namespace l4ua {
+namespace L4U {
   class location;
 
   class node;
@@ -219,8 +219,8 @@ namespace l4ua {
     }
   };
 
-  // T = l4ua::parser::value_type
-  // U = l4ua::location
+  // T = L4U::parser::value_type
+  // U = L4U::location
   template <class T, class U>
   inline int yylex(T* value, U* location, context& ctx) {
     if (const token* tk = ctx.next()) {

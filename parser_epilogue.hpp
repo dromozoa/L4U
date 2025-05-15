@@ -1,7 +1,7 @@
-#ifndef L4UA_PARSER_EPILOGUE_HPP
-#define L4UA_PARSER_EPILOGUE_HPP
+#ifndef L4U_PARSER_EPILOGUE_HPP
+#define L4U_PARSER_EPILOGUE_HPP
 
-namespace l4ua {
+namespace L4U {
   void node::set_location(const location& location) {
     begin_line_ = location.begin.line;
     begin_column_ = location.begin.column;
@@ -24,8 +24,8 @@ int main(int ac, char* av[]) {
   }
 
   try {
-    l4ua::context context(av[1], av[2]);
-    l4ua::parser parser(context);
+    L4U::context context(av[1], av[2]);
+    L4U::parser parser(context);
     parser.parse();
 
     return 0;

@@ -1,7 +1,7 @@
 %require "3.2"
 %language "C++"
 
-%define api.namespace {l4ua}
+%define api.namespace {L4U}
 %define api.value.type variant
 
 %param {context& ctx}
